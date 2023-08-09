@@ -11,22 +11,6 @@ let items = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
 ]
 
-let singleDeckShip = {
-    sizeShip: 1,
-    count: 4
-}
-let doubleDeckShip = {
-    sizeShip: 2,
-    count: 3
-}
-let threeDeckShip = {
-    sizeShip: 3,
-    count: 2
-}
-let fourDeckShip = {
-    sizeShip: 4,
-    count: 1
-}
 
 let section = document.querySelector('#wrapper');
 section.className = "wrapper";
