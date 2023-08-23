@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html {
+            box-sizing: border-box;
+        }
+
+        *,
+        *:before,
+        *:after {
+            box-sizing: border-box;
+        }
+
+        .main_wrapper {
+            border: 3px solid #14213d;
+            margin: 50px auto;
+            padding: 50px;
+            width: 800px;
+            height: 700px;
+            position: relative;
+        }
+
+        .wrapper_userShips {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: 3px solid #264653;
+            width: 780px;
+            height: 600px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .container_userShips {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+        }
+
+        .sidebar {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            border: 3px solid #264653;
+            width: 200px;
+            height: 250px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .title {
+            color: #264653;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .select_list {
+            border: 3px solid #264653;
+            font-size: 18px;
+            margin: 15px;
+            width: 150px;
+        }
+
+        .btn {
+            color: #264653;
+            font-size: 18px;
+            padding: 15px 30px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="main_wrapper">
+        <div class="wrapper_computerShips" id="wrapperComputerShips">
+            <div class="container_computerShips" id="containerComputerShips"></div>
+            <button class="btn_play" id="btnPlay" onclick="play()">play</button>
+        </div>
+    </div>
+
+    <script>
+        let itemsComp = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+        ]
+
+        const value = 1;
+        let countShips = 0;
+        let positionShips = [];
+        let deleteShips = [];
+
+        function createfieldComp() {
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    createElementComp(i, j);
+                };
+            }
+        }
+
+        function createElementComp(i, j) {
+            let containerCompShips = document.querySelector('#containerComputerShips');
+            let div = document.createElement('div');
+            div.position = {
+                x: j,
+                y: i,
+            }
+            div.style.cssText = `border: 1px solid #5a5a66; position: absolute; left: ${j * 50}px; top: ${i * 50}px; width: 50px; height: 50px; background-color: #a3b18a;`;
+
+            div.setAttribute('id', `idComp${i}-${j}`);
+            div.onclick = hitShip;
+
+            containerCompShips.appendChild(div);
+        }
+
+        function hitShip() {
+            let elem = itemsComp[this.position.y][this.position.x];
+            let div = document.getElementById(`idComp${this.position.y}-${this.position.x}`);
+
+            if (elem !== 1) {
+                itemsComp[this.position.y][this.position.x] = 3;
+                div.style.backgroundColor = "#E8E8E8";
+            }
+            if (elem === 1) {
+                itemsComp[this.position.y][this.position.x] = 2;
+                div.style.background = "url(img/Vector.png) no-repeat center";
+                div.style.border = "1px solid #ff7d00";
+
+                const indexToDelete = positionShips.findIndex(ship =>
+                    ship.y === this.position.y && ship.x === this.position.x);
+                if (indexToDelete !== -1) {
+                    deleteShips.push(positionShips.splice(indexToDelete, 1)[0]);
+                    console.log('delete ships array - ', deleteShips);
+                    console.log('index to delete - ', indexToDelete);
+                    console.log('position ships after - ', positionShips);
+                }
+                checkDeleteElement();
+            } 
+
+            let count = 0;
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    let elem = itemsComp[i][j];
+                    if (elem === 1) {
+                        count++;
+                    }
+                }
+            }
+            if (count === 0) {
+                setTimeout("alert('win')", 150);
+            }
+            console.log(count);
+        }
+     
+
+
+        function checkDeleteElement() {
+            deleteShips.forEach(deleteElem => notShipAround(deleteElem[0].y, deleteElem[0].x));  
+        }
+
+        function notShipAround(y, x) {
+            let div = document.getElementById(`idComp${y}-${x}`);
+            let top = itemsComp[y - 1][x];
+            let topRight = itemsComp[y - 1][x + 1];
+            let right = itemsComp[y][x + 1];
+            let bottomRight = itemsComp[y + 1][x + 1];
+            let bottom = itemsComp[y + 1][x];
+            let bottomLeft = itemsComp[y + 1][x - 1];
+            let left = itemsComp[y][x - 1];
+            let topLeft = itemsComp[y - 1][x - 1];
+
+            if ((top != 1 || top == false) && (topRight !== 1 || topRight == false) && (right !== 1 || right == false) && (bottomRight !== 1 || bottomRight == false) && (bottom !== 1 || bottom == false) && (bottomLeft !== 1 || bottomLeft == false) && (left !== 1 || left == false) && (topLeft !== 1 || topLeft == false)) {
+                let divTop = document.getElementById(`idComp${y - 1}-${x}`);
+                let divTopRight = document.getElementById(`idComp${y - 1}-${x + 1}`);
+                let divRight = document.getElementById(`idComp${y}-${x + 1}`);
+                let divBottomRight = document.getElementById(`idComp${y + 1}-${x + 1}`);
+                let divBottom = document.getElementById(`idComp${y + 1}-${x}`);
+                let divBottomLeft = document.getElementById(`idComp${y + 1}-${x - 1}`);
+                let divLeft = document.getElementById(`idComp${y}-${x - 1}`);
+                let divTopLeft = document.getElementById(`idComp${y - 1}-${x - 1}`);
+
+                if (divTop) {
+                    divTop.style.backgroundColor = 'orange';
+                }
+                if (divTopRight) {
+                    divTopRight.style.backgroundColor = 'orange';
+                }
+                if (divRight) {
+                    divRight.style.backgroundColor = 'orange';
+                }
+                if (divBottomRight) {
+                    divBottomRight.style.backgroundColor = 'orange';
+                }
+                if (divBottom) {
+                    divBottom.style.backgroundColor = 'orange';
+                }
+                if (divBottomLeft) {
+                    divBottomLeft.style.backgroundColor = 'orange';
+                }
+                if (divLeft) {
+                    divLeft.style.backgroundColor = 'orange';
+                }
+                if (divTopLeft) {
+                    divTopLeft.style.backgroundColor = 'orange';
+                }
+            }
+        }
+
+        function randomPlaceShip(sizeShip) {
+            let randomX;
+            let randomY;
+            do {
+                randomX = Math.floor(Math.random() * 10);
+                randomY = Math.floor(Math.random() * 10);
+                // console.log(randomY, randomX);
+            }
+            while (!isFreeForShipComp(sizeShip, randomY, randomX));
+
+            createShipComp(sizeShip, randomY, randomX);
+        }
+
+        function createShipComp(size, y, x) {
+            for (let i = 0; i < size; i++) {
+                itemsComp[y][x + i] = 1;
+            }
+        }
+
+        function dedlockComp(size) {
+            for (let i = 0; i < itemsComp.length; i++) {
+                for (let j = 0; j < itemsComp.length; j++) {
+                    if (isFreeForShipComp(size, i, j)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function resetComp() {
+            itemsComp = [
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+            ]
+        }
+
+        function isOutOfFieldComp(randomY, randomX) {
+            let result = randomX < 0 || randomX > itemsComp.length - 1 ||
+                randomY < 0 || randomY > itemsComp.length - 1;
+            return result;
+        }
+
+        function isFreeCellComp(y, x) {
+            if (isOutOfFieldComp(y, x))
+                return false;
+
+            let centrPoint = itemsComp[y][x];
+            if (centrPoint != 0) {
+                return false;
+            }
+
+            let top = 0;
+            if (!isOutOfFieldComp(y - 1, x)) {
+                top = itemsComp[y - 1][x];
+            }
+
+            let topRight = 0;
+            if (!isOutOfFieldComp(y - 1, x + 1)) {
+                topRight = itemsComp[y - 1][x + 1];
+            }
+
+            let right = 0;
+            if (!isOutOfFieldComp(y, x + 1)) {
+                right = itemsComp[y][x + 1];
+            }
+
+            let bottomRight = 0;
+            if (!isOutOfFieldComp(y + 1, x + 1)) {
+                bottomRight = itemsComp[y + 1][x + 1];
+            }
+
+            let bottom = 0;
+            if (!isOutOfFieldComp(y + 1, x)) {
+                bottom = itemsComp[y + 1][x];
+            }
+
+            let bottomLeft = 0;
+            if (!isOutOfFieldComp(y + 1, x - 1)) {
+                bottomLeft = itemsComp[y + 1][x - 1];
+            }
+
+            let left = 0;
+            if (!isOutOfFieldComp(y, x - 1)) {
+                left = itemsComp[y][x - 1];
+            }
+
+            let topLeft = 0;
+            if (!isOutOfFieldComp(y - 1, x - 1)) {
+                topLeft = itemsComp[y - 1][x - 1];
+            }
+
+            return top == 0
+                && topRight == 0
+                && right == 0
+                && bottomRight == 0
+                && bottom == 0
+                && bottomLeft == 0
+                && left == 0
+                && topLeft == 0;
+        }
+
+        function isFreeForShipComp(size, y, x) {
+            for (let i = 0; i < size; i++) {
+                if (!isFreeCellComp(y, x + i)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function placeShipsComp() {
+            const ships = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
+
+            for (let i = 0; i < ships.length; i++) {
+                let size = ships[i];
+                // console.log('[+] Ship ' + size);
+                if (dedlockComp(size)) {
+                    // console.log('[-] No place for ship ' + size);
+                    resetComp();
+                    placeShipsComp();
+                    return;
+                }
+                randomPlaceShip(size);
+                // console.log('[+] Ship successfull placed ' + size);
+            }
+        }
+
+        function play() {
+            const btnPlay = document.querySelector('#btnPlay');
+            btnPlay.style.cssText = "display: none";
+            createfieldComp();
+            placeShipsComp();
+            findPosition(itemsComp, value, 20);
+            console.log(itemsComp);
+        }
+
+        function findPosition(arr, value, a) {
+            for (let i = 0; i < arr.length; i++) {
+                for (let j = 0; j < arr[i].length; j++) {
+                    let elem = arr[i][j];
+                    if (elem === value) {
+                        countShips++;
+                        positionShips.push({ y: i, x: j });
+                    }
+                    if (countShips === a) {
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+
+        console.log('positionShips - ', positionShips);
+        console.log('delete - ', deleteShips);
+    </script>
+
+</body>
+
+</html>
